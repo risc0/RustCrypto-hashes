@@ -18,13 +18,6 @@ env:
   CARGO_INCREMENTAL: 0
 
 jobs:
-  set-msrv:
-    uses: RustCrypto/actions/.github/workflows/set-msrv.yml@master
-    with:
-        # Crate supports MSRV 1.41 without `oid` feature. We test true MSRV
-        # in the `test-msrv` job.
-        msrv: 1.57.0
-
   # Builds for no_std platforms
   build:
     needs: set-msrv
