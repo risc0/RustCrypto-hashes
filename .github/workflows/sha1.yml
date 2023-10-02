@@ -20,12 +20,10 @@ env:
 jobs:
   # Builds for no_std platforms
   build:
-    needs: set-msrv
     runs-on: ubuntu-latest
     strategy:
       matrix:
         rust:
-          - ${{needs.set-msrv.outputs.msrv}}
           - stable
         target:
           - thumbv7em-none-eabi
@@ -36,13 +34,12 @@ jobs:
         with:
           profile: minimal
           toolchain: ${{ matrix.rust }}
-          target: ${{ matrix.target }}
+          targets: ${{ matrix.target }}
           override: true
       - run: cargo build --no-default-features --target ${{ matrix.target }}
 
   # Linux tests
   linux:
-    needs: set-msrv
     strategy:
       matrix:
         include:
@@ -58,8 +55,6 @@ jobs:
 
           # 64-bit Linux/x86_64
           - target: x86_64-unknown-linux-gnu
-            rust: ${{needs.set-msrv.outputs.msrv}}
-          - target: x86_64-unknown-linux-gnu
             rust: stable
 
     runs-on: ubuntu-latest
@@ -69,7 +64,7 @@ jobs:
         with:
           profile: minimal
           toolchain: ${{ matrix.rust }}
-          target: ${{ matrix.target }}
+          targets: ${{ matrix.target }}
           override: true
       - run: ${{ matrix.deps }}
       - run: cargo test --target ${{ matrix.target }} --no-default-features
@@ -79,11 +74,9 @@ jobs:
 
   # macOS tests
   macos:
-    needs: set-msrv
     strategy:
       matrix:
         rust:
-          - ${{needs.set-msrv.outputs.msrv}}
           - stable
 
     runs-on: macos-latest
@@ -93,37 +86,12 @@ jobs:
         with:
           profile: minimal
           toolchain: ${{ matrix.rust }}
-          target: x86_64-apple-darwin
+          targets: x86_64-apple-darwin
           override: true
       - run: cargo test --no-default-features
       - run: cargo test
       - run: cargo test --features asm
       - run: cargo test --all-features
-
-  # Windows tests
-  windows:
-    needs: set-msrv
-    strategy:
-      matrix:
-        include:
-          # 64-bit Windows (GNU)
-          # TODO(tarcieri): try re-enabling this when we bump MSRV
-          #- target: x86_64-pc-windows-gnu
-          #  toolchain: ${{needs.set-msrv.outputs.msrv}}
-          - target: x86_64-pc-windows-gnu
-            rust: stable
-
-    runs-on: windows-latest
-    steps:
-      - uses: actions/checkout@v2
-      - uses: risc0/risc0/.github/actions/rustup@main
-        with:
-          profile: minimal
-          toolchain: ${{ matrix.rust }}
-          target: ${{ matrix.target }}
-          override: true
-      - uses: msys2/setup-msys2@v2
-      - run: cargo test --target ${{ matrix.target }}
 
   # TODO: remove on MSRV bump to 1.57 or higher
   test-msrv:

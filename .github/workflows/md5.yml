@@ -37,7 +37,7 @@ jobs:
         with:
           profile: minimal
           toolchain: ${{ matrix.rust }}
-          target: ${{ matrix.target }}
+          targets: ${{ matrix.target }}
           override: true
       - run: cargo build --no-default-features --target ${{ matrix.target }}
 

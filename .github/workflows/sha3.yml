@@ -19,12 +19,10 @@ env:
 
 jobs:
   build:
-    needs: set-msrv
     runs-on: ubuntu-latest
     strategy:
       matrix:
         rust:
-          - ${{needs.set-msrv.outputs.msrv}}
           - stable
         target:
           - thumbv7em-none-eabi
@@ -35,17 +33,15 @@ jobs:
         with:
           profile: minimal
           toolchain: ${{ matrix.rust }}
-          target: ${{ matrix.target }}
+          targets: ${{ matrix.target }}
           override: true
       - run: cargo build --no-default-features --target ${{ matrix.target }}
 
   test:
-    needs: set-msrv
     runs-on: ubuntu-latest
     strategy:
       matrix:
         rust:
-          - ${{needs.set-msrv.outputs.msrv}}
           - stable
     steps:
       - uses: actions/checkout@v2
