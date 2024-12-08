@@ -32,6 +32,11 @@ impl<const ROUNDS: usize> Sha3State<ROUNDS> {
     }
 
     pub fn permute(&mut self) {
+        #[cfg(target_os = "zkvm")]
+        if ROUNDS == 24 {
+            self.state = risc0_zkvm::guest::env::keccak_update(&self.state);
+            return;
+        }
         keccak::p1600(&mut self.state, ROUNDS);
     }
 }
